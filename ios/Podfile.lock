@@ -1,0 +1,84 @@
+PODS:
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - ReachabilitySwift
+  - Flutter (1.0.0)
+  - flutter_secure_storage (6.0.0):
+    - Flutter
+  - openvpn_flutter (0.0.1):
+    - Flutter
+  - OpenVPNAdapter (0.8.0):
+    - OpenVPNAdapter/ASIO (= 0.8.0)
+    - OpenVPNAdapter/LZ4 (= 0.8.0)
+    - OpenVPNAdapter/mbedTLS (= 0.8.0)
+    - OpenVPNAdapter/OpenVPN3 (= 0.8.0)
+    - OpenVPNAdapter/OpenVPNAdapter (= 0.8.0)
+    - OpenVPNAdapter/OpenVPNClient (= 0.8.0)
+  - OpenVPNAdapter/ASIO (0.8.0)
+  - OpenVPNAdapter/LZ4 (0.8.0)
+  - OpenVPNAdapter/mbedTLS (0.8.0)
+  - OpenVPNAdapter/OpenVPN3 (0.8.0)
+  - OpenVPNAdapter/OpenVPNAdapter (0.8.0)
+  - OpenVPNAdapter/OpenVPNClient (0.8.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - permission_handler_apple (9.3.0):
+    - Flutter
+  - ReachabilitySwift (5.2.4)
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - openvpn_flutter (from `.symlinks/plugins/openvpn_flutter/ios`)
+  - OpenVPNAdapter (from `https://github.com/ss-abramchuk/OpenVPNAdapter.git`, tag `0.8.0`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+
+SPEC REPOS:
+  trunk:
+    - ReachabilitySwift
+
+EXTERNAL SOURCES:
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
+  Flutter:
+    :path: Flutter
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  openvpn_flutter:
+    :path: ".symlinks/plugins/openvpn_flutter/ios"
+  OpenVPNAdapter:
+    :git: https://github.com/ss-abramchuk/OpenVPNAdapter.git
+    :tag: 0.8.0
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+
+CHECKOUT OPTIONS:
+  OpenVPNAdapter:
+    :git: https://github.com/ss-abramchuk/OpenVPNAdapter.git
+    :tag: 0.8.0
+
+SPEC CHECKSUMS:
+  connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
+  openvpn_flutter: 31bba88d4f9daf1bfba7d11e943f831c442fc1d1
+  OpenVPNAdapter: 1d945f4528073ff641d4ed90d98e28f2b1c86d05
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+
+PODFILE CHECKSUM: f12545078626f2e3648ffca28e9074311f2c56c2
+
+COCOAPODS: 1.16.2
