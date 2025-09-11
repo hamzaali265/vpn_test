@@ -44,7 +44,7 @@ class ConnectionButton extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -118,14 +118,14 @@ class ConnectionButton extends StatelessWidget {
   Color _getShadowColor() {
     switch (connectionInfo.status) {
       case VpnConnectionStatus.connected:
-        return Colors.green.withOpacity(0.5);
+        return Colors.green.withValues(alpha: 0.5);
       case VpnConnectionStatus.connecting:
       case VpnConnectionStatus.disconnecting:
-        return Colors.orange.withOpacity(0.5);
+        return Colors.orange.withValues(alpha: 0.5);
       case VpnConnectionStatus.error:
-        return Colors.red.withOpacity(0.5);
+        return Colors.red.withValues(alpha: 0.5);
       default:
-        return Colors.blue.withOpacity(0.5);
+        return Colors.blue.withValues(alpha: 0.5);
     }
   }
 

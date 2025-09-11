@@ -14,7 +14,10 @@ class ServerListItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1D29),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,

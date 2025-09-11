@@ -23,7 +23,7 @@ class ServerInfoCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.blue.withOpacity(0.3),
+              color: Colors.blue.withAlpha(30),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -39,7 +39,7 @@ class ServerInfoCard extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withAlpha(20),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
@@ -65,7 +65,7 @@ class ServerInfoCard extends StatelessWidget {
                             child: Text(
                               server.country,
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: Colors.white70,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -76,7 +76,7 @@ class ServerInfoCard extends StatelessWidget {
                       Text(
                         server.ipAddress,
                         style: const TextStyle(
-                          color: Colors.white70,
+                          color: Colors.white,
                           fontSize: 14,
                         ),
                       ),
