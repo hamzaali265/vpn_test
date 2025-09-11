@@ -143,8 +143,12 @@ class NativeVpnService {
         return;
       }
 
-      // Start VPN
-      final result = await _channel.invokeMethod('startVpn');
+      // Start VPN with server information
+      final result = await _channel.invokeMethod('startVpn', {
+        'server_host': server.ipAddress,
+        'server_port': 1194, // Default OpenVPN port
+        'server_config': server.openVpnConfigData,
+      });
 
       if (result == 'VPN started successfully') {
         if (kDebugMode) {

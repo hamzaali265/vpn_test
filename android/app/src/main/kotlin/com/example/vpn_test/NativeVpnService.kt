@@ -10,24 +10,36 @@ import java.net.InetSocketAddress
 import java.nio.channels.DatagramChannel
 import java.nio.channels.SocketChannel
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.Base64
 
 class NativeVpnService : VpnService() {
     companion object {
         private const val TAG = "NativeVpnService"
         private const val VPN_ADDRESS = "10.0.0.2"
         private const val VPN_ROUTE = "0.0.0.0"
-        private const val DNS_SERVER = "8.8.8.8"
+        private const val DNS_SERVER_1 = "8.8.8.8"
+        private const val DNS_SERVER_2 = "8.8.4.4"
+        private const val DNS_SERVER_3 = "1.1.1.1"
+        private const val DNS_SERVER_4 = "1.0.0.1"
     }
 
     private var vpnInterface: ParcelFileDescriptor? = null
     private val isRunning = AtomicBoolean(false)
     private var vpnThread: Thread? = null
+    private var serverConfig: String? = null
+    private var serverHost: String? = null
+    private var serverPort: Int = 1194
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "NativeVpnService started")
         
         when (intent?.action) {
-            "START_VPN" -> startVpn()
+            "START_VPN" -> {
+                serverConfig = intent.getStringExtra("server_config")
+                serverHost = intent.getStringExtra("server_host")
+                serverPort = intent.getIntExtra("server_port", 1194)
+                startVpn()
+            }
             "STOP_VPN" -> stopVpn()
         }
         
@@ -41,13 +53,18 @@ class NativeVpnService : VpnService() {
         }
 
         try {
+            Log.d(TAG, "Connecting to server: $serverHost:$serverPort")
+            
             val builder = Builder()
-                .setSession("VPN Gate")
+                .setSession("VPN Gate - $serverHost")
                 .addAddress(VPN_ADDRESS, 32)
                 .addRoute(VPN_ROUTE, 0)
-                .addDnsServer(DNS_SERVER)
-                .addDnsServer("8.8.4.4")
+                .addDnsServer(DNS_SERVER_1)
+                .addDnsServer(DNS_SERVER_2)
+                .addDnsServer(DNS_SERVER_3)
+                .addDnsServer(DNS_SERVER_4)
                 .setMtu(1500)
+                .setBlocking(false)
 
             vpnInterface = builder.establish()
             
@@ -90,10 +107,21 @@ class NativeVpnService : VpnService() {
                 
                 Log.d(TAG, "VPN thread started")
                 
+                // For now, just keep the interface alive
+                // In a real implementation, this would handle packet forwarding
                 while (isRunning.get() && !Thread.currentThread().isInterrupted) {
-                    // Simple packet forwarding simulation
-                    // In a real implementation, you would handle actual packet forwarding
-                    Thread.sleep(100)
+                    try {
+                        // Simple keep-alive mechanism
+                        Thread.sleep(1000)
+                        
+                        // Write a simple packet to keep the interface active
+                        val keepAlivePacket = ByteArray(1)
+                        vpnOutput.write(keepAlivePacket)
+                        vpnOutput.flush()
+                        
+                    } catch (e: Exception) {
+                        Log.d(TAG, "Keep-alive packet failed: ${e.message}")
+                    }
                 }
                 
                 vpnInput.close()

@@ -34,7 +34,10 @@ class VpnMethodChannel : FlutterPlugin, MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "startVpn" -> {
-                startVpn(result)
+                val serverHost = call.argument<String>("server_host")
+                val serverPort = call.argument<Int>("server_port") ?: 1194
+                val serverConfig = call.argument<String>("server_config")
+                startVpn(serverHost, serverPort, serverConfig, result)
             }
             "stopVpn" -> {
                 stopVpn(result)
@@ -51,9 +54,9 @@ class VpnMethodChannel : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    private fun startVpn(result: Result) {
+    private fun startVpn(serverHost: String?, serverPort: Int, serverConfig: String?, result: Result) {
         try {
-            Log.d("VpnMethodChannel", "Starting VPN")
+            Log.d("VpnMethodChannel", "Starting VPN to $serverHost:$serverPort")
             
             // Check if VPN permission is granted
             val intent = VpnService.prepare(context)
@@ -63,9 +66,12 @@ class VpnMethodChannel : FlutterPlugin, MethodCallHandler {
                 return
             }
 
-            // Start the VPN service
+            // Start the VPN service with server information
             vpnServiceIntent = Intent(context, NativeVpnService::class.java).apply {
                 action = "START_VPN"
+                putExtra("server_host", serverHost)
+                putExtra("server_port", serverPort)
+                putExtra("server_config", serverConfig)
             }
             context.startForegroundService(vpnServiceIntent)
             
