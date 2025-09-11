@@ -318,13 +318,12 @@ class VpnService {
       return;
     }
 
+    // Only allow connection if not already connected
     if (_currentStatus.status == VpnConnectionStatus.connected) {
       if (kDebugMode) {
-        log('Already connected, disconnecting first');
+        log('Already connected, ignoring connect request');
       }
-      await disconnect();
-      // Wait a bit for disconnection to complete
-      await Future.delayed(const Duration(seconds: 2));
+      return;
     }
 
     _isConnecting = true;

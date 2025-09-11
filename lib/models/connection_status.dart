@@ -62,6 +62,7 @@ class VpnConnectionInfo {
 
   bool get isConnected => status == VpnConnectionStatus.connected;
   bool get isConnecting => status == VpnConnectionStatus.connecting;
+  bool get isDisconnecting => status == VpnConnectionStatus.disconnecting;
   bool get isDisconnected => status == VpnConnectionStatus.disconnected;
   bool get hasError => status == VpnConnectionStatus.error;
 }

@@ -76,11 +76,13 @@ class ConnectionButton extends StatelessWidget {
   }
 
   void _handleTap() {
-    if (connectionInfo.isConnected || connectionInfo.isConnecting) {
+    if (connectionInfo.isConnected) {
       onDisconnect();
-    } else {
+    } else if (!connectionInfo.isConnecting &&
+        !connectionInfo.isDisconnecting) {
       onConnect();
     }
+    // Do nothing if connecting or disconnecting
   }
 
   LinearGradient _getGradient() {

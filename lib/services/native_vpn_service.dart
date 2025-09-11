@@ -150,21 +150,25 @@ class NativeVpnService {
         'server_config': server.openVpnConfigData,
       });
 
-      if (result == 'VPN started successfully') {
+      if (result is Map && result['status'] == 'started') {
         if (kDebugMode) {
-          log('VPN started successfully');
+          log('VPN started successfully: ${result['message']}');
         }
 
-        // Wait a moment for the VPN to establish connection
-        await Future.delayed(const Duration(seconds: 2));
+        // Keep status as connecting - let the VPN establish properly
+        _updateStatus(VpnConnectionStatus.connecting, server: server);
 
-        // Check VPN status
+        // Wait longer for the VPN to establish connection
+        await Future.delayed(const Duration(seconds: 5));
+
+        // Check VPN status after proper establishment time
         final statusResult = await _channel.invokeMethod('getVpnStatus');
-        if (statusResult == 'connected') {
+        if (statusResult is Map && statusResult['status'] == 'connected') {
           _updateStatus(VpnConnectionStatus.connected, server: server);
           _connectedAt = DateTime.now();
           _startConnectionTimer();
         } else {
+          // Keep as connecting if not yet connected
           _updateStatus(VpnConnectionStatus.connecting, server: server);
         }
       } else {
@@ -194,11 +198,13 @@ class NativeVpnService {
 
       final result = await _channel.invokeMethod('stopVpn');
 
-      if (result == 'VPN stopped successfully') {
+      if (result is Map && result['status'] == 'stopped') {
         if (kDebugMode) {
-          log('VPN stopped successfully');
+          log('VPN stopped successfully: ${result['message']}');
         }
-        // Status will be updated via method channel callback
+        _updateStatus(VpnConnectionStatus.disconnected);
+        _connectedAt = null;
+        _connectionTimer?.cancel();
       } else {
         if (kDebugMode) {
           log('Failed to stop VPN: $result');
