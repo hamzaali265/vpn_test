@@ -21,10 +21,16 @@ class VpnMethodChannel : MethodChannel.MethodCallHandler {
     private var context: Context? = null
     private var vpnServiceIntent: Intent? = null
     private var pendingPermissionResult: MethodChannel.Result? = null
+    
+    // FIX: Add DoH VPN manager
+    private var dohVpnManager: DohVpnManager? = null
 
     fun onAttachedToEngine(flutterEngine: FlutterEngine, activity: Activity) {
         this.activity = activity
         this.context = activity.applicationContext
+        
+        // FIX: Initialize DoH VPN manager
+        dohVpnManager = DohVpnManagerImp(activity.applicationContext)
         
         methodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
         methodChannel?.setMethodCallHandler(this)
@@ -37,6 +43,7 @@ class VpnMethodChannel : MethodChannel.MethodCallHandler {
         methodChannel = null
         activity = null
         context = null
+        dohVpnManager = null
         Log.d(TAG, "VPN Method Channel detached")
     }
 
@@ -59,6 +66,28 @@ class VpnMethodChannel : MethodChannel.MethodCallHandler {
             }
             "isVpnPermissionGranted" -> {
                 isVpnPermissionGranted(result)
+            }
+            // FIX: Add DoH VPN methods
+            "startDohVpn" -> {
+                val dohUrl = call.argument<String>("doh_url")
+                val alwaysOn = call.argument<Boolean>("always_on") ?: false
+                startDohVpn(dohUrl, alwaysOn, result)
+            }
+            "stopDohVpn" -> {
+                stopDohVpn(result)
+            }
+            "setDohUrl" -> {
+                val dohUrl = call.argument<String>("doh_url")
+                setDohUrl(dohUrl, result)
+            }
+            "getDohUrl" -> {
+                getDohUrl(result)
+            }
+            "getDohVpnStatus" -> {
+                getDohVpnStatus(result)
+            }
+            "clearDnsCache" -> {
+                clearDnsCache(result)
             }
             else -> {
                 result.notImplemented()
@@ -201,6 +230,130 @@ class VpnMethodChannel : MethodChannel.MethodCallHandler {
         } catch (e: Exception) {
             Log.e(TAG, "Error getting VPN status: ${e.message}")
             result.error("STATUS_ERROR", "Failed to get VPN status: ${e.message}", null)
+        }
+    }
+    
+    // FIX: DoH VPN method implementations
+    private fun startDohVpn(dohUrl: String?, alwaysOn: Boolean, result: MethodChannel.Result) {
+        try {
+            if (dohUrl.isNullOrEmpty()) {
+                result.error("INVALID_PARAMS", "DoH URL is required", null)
+                return
+            }
+
+            Log.d(TAG, "Starting DoH VPN with URL: $dohUrl")
+            
+            // Check if VPN permission is granted
+            val prepareIntent = VpnService.prepare(context)
+            if (prepareIntent != null) {
+                Log.w(TAG, "VPN permission not granted")
+                result.error("PERMISSION_DENIED", "VPN permission not granted. Please request permission first.", null)
+                return
+            }
+
+            // Set DoH URL and start VPN
+            dohVpnManager?.setDohUrl(dohUrl)
+            dohVpnManager?.startVpn(alwaysOn)
+            
+            Log.d(TAG, "DoH VPN started successfully")
+            result.success(mapOf(
+                "status" to "started",
+                "message" to "DoH VPN started successfully",
+                "doh_url" to dohUrl,
+                "always_on" to alwaysOn
+            ))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting DoH VPN: ${e.message}")
+            result.error("START_ERROR", "Failed to start DoH VPN: ${e.message}", null)
+        }
+    }
+
+    private fun stopDohVpn(result: MethodChannel.Result) {
+        try {
+            Log.d(TAG, "Stopping DoH VPN")
+            
+            dohVpnManager?.stopVpn()
+            
+            Log.d(TAG, "DoH VPN stopped successfully")
+            result.success(mapOf(
+                "status" to "stopped",
+                "message" to "DoH VPN stopped successfully"
+            ))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error stopping DoH VPN: ${e.message}")
+            result.error("STOP_ERROR", "Failed to stop DoH VPN: ${e.message}", null)
+        }
+    }
+
+    private fun setDohUrl(dohUrl: String?, result: MethodChannel.Result) {
+        try {
+            if (dohUrl.isNullOrEmpty()) {
+                result.error("INVALID_PARAMS", "DoH URL is required", null)
+                return
+            }
+
+            dohVpnManager?.setDohUrl(dohUrl)
+            
+            Log.d(TAG, "DoH URL set to: $dohUrl")
+            result.success(mapOf(
+                "status" to "success",
+                "message" to "DoH URL set successfully",
+                "doh_url" to dohUrl
+            ))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error setting DoH URL: ${e.message}")
+            result.error("SET_URL_ERROR", "Failed to set DoH URL: ${e.message}", null)
+        }
+    }
+
+    private fun getDohUrl(result: MethodChannel.Result) {
+        try {
+            val dohUrl = dohVpnManager?.getDohUrl() ?: ""
+            result.success(mapOf(
+                "doh_url" to dohUrl,
+                "message" to if (dohUrl.isNotEmpty()) "DoH URL retrieved" else "No DoH URL set"
+            ))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting DoH URL: ${e.message}")
+            result.error("GET_URL_ERROR", "Failed to get DoH URL: ${e.message}", null)
+        }
+    }
+
+    private fun getDohVpnStatus(result: MethodChannel.Result) {
+        try {
+            val isRunning = dohVpnManager?.isVpnRunning() ?: false
+            val status = if (isRunning) {
+                mapOf(
+                    "status" to "connected",
+                    "message" to "DoH VPN is currently active"
+                )
+            } else {
+                mapOf(
+                    "status" to "disconnected",
+                    "message" to "DoH VPN is not active"
+                )
+            }
+            result.success(status)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting DoH VPN status: ${e.message}")
+            result.error("STATUS_ERROR", "Failed to get DoH VPN status: ${e.message}", null)
+        }
+    }
+
+    private fun clearDnsCache(result: MethodChannel.Result) {
+        try {
+            Log.d(TAG, "Clearing DNS cache")
+            
+            dohVpnManager?.clearDnsCache()
+            
+            Log.d(TAG, "DNS cache cleared successfully")
+            result.success(mapOf(
+                "status" to "success",
+                "message" to "DNS cache cleared successfully"
+            ))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error clearing DNS cache: ${e.message}")
+            result.error("CLEAR_CACHE_ERROR", "Failed to clear DNS cache: ${e.message}", null)
         }
     }
 }

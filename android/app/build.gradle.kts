@@ -45,4 +45,9 @@ flutter {
 
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    
+    // FIX: Add DNS and packet handling dependencies from android 2 project
+    implementation("dnsjava:dnsjava:3.5.2")
+    implementation("org.pcap4j:pcap4j-core:1.8.2")
+    implementation("org.pcap4j:pcap4j-packetfactory-static:1.8.2")
 }
